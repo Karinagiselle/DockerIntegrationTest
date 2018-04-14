@@ -20,6 +20,11 @@
             <version>3.9.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc7</artifactId>
+            <version>12.1.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -55,25 +60,68 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>wnameless/oracle-xe-11g:latest</name>
-                                    <alias>oracle</alias>
+                                    <alias>oraclexe</alias>
+                                    <name>docker-registry.diginsite.net/gl/oraclexe</name>
                                     <run>
                                         <ports>
                                             <port>1521:1521</port>
                                         </ports>
+                                        <wait>
+                                            <time>40000</time>
+                                            <!-- simple tcp waiting does not work on macs so use log -->
+                                            <log>xe ready</log>
+                                        </wait>
+                                    </run>
+                                </image>
+                                <image>
+                                    <alias>tomcat8</alias>
+                                    <name>tomcatforglservice</name>
+                                    <build>
+                                        <dockerFile>Dockerfile</dockerFile>
+                                        <dockerFileDir>${basedir}/../</dockerFileDir>
+                                    </build>
+                                    <run>
+                                        <dependsOn>
+                                            <container>oraclexe</container>
+                                        </dependsOn>
+                                        <links>
+                                            <link>oraclexe:db</link>
+                                        </links>
+                                        <ports>
+                                            <port>9090:8080</port>
+                                        </ports>
+                                        <log>
+                                            <enabled>true</enabled>
+                                        </log>
                                     </run>
                                 </image>
                             </images>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>remove-it-database</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
+                        <execution>
+                            <id>start</id>
+                            <phase>pre-integration-test</phase>
+                            <goals>
+                                <goal>build</goal>
+                                <goal>start</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>stop</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>stop</goal>
+                            </goals>
+                        </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

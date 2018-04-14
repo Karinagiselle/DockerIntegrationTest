@@ -1,9 +1,19 @@
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DockerOracleDBIT extends DbConfig {
 
-public class DockerOracleDBIT {
     @Test
-    public void initialTest() {
+    public void initialTest() throws IOException, SQLException {
+        populateDbTable();
+
+        ResultSet allPets = getAllPets();
+
+        while (allPets.next()) {
+            System.out.println(allPets.getString("PET_ID") + " - " + allPets.getString("NAME"));
+        }
     }
 }
