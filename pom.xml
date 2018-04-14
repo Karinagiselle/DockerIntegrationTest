@@ -39,7 +39,12 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.20.1</version>
+                <version>0.24.0</version>
+                <configuration>
+                    <imagePullPolicy>IfNotPresent</imagePullPolicy>
+                    <logDate>default</logDate>
+                    <verbose>true</verbose>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-it-database</id>
@@ -54,7 +59,7 @@
                                     <alias>oracle</alias>
                                     <run>
                                         <ports>
-                                            <port>5432</port>
+                                            <port>1521:1521</port>
                                         </ports>
                                     </run>
                                 </image>
